@@ -1,0 +1,59 @@
+body {
+    background: #000;
+    color: #fff;
+    font-family: sans-serif;
+}
+
+.info {
+    margin: 10px;
+}
+
+.field {
+    width: calc(40 * 16px); /* 40 клеток */
+    height: calc(24 * 16px); /* 24 клетки */
+    display: grid;
+    grid-template-columns: repeat(40, 16px);
+    grid-template-rows: repeat(24, 16px);
+    margin: auto;
+    border: 1px solid #444; /* Add a border to the field */
+}
+
+.tile {
+    width: 16px;
+    height: 16px;
+    position: relative; /* Needed for absolute positioning of the health bar */
+    overflow: hidden; /* Hide overflow from health bar */
+}
+
+.health {
+    position: absolute;
+    bottom: 1px;
+    left: 0;
+    height: 3px;
+    background-color: red;
+    z-index: 1;
+}
+
+.wall {
+    background: url("img/tile-W.png") center/contain no-repeat;
+}
+
+.floor {
+    background: url("img/tile-.png") center / contain no-repeat;
+}
+
+.hero {
+    background: url("img/tile-P.png") center/contain no-repeat;
+}
+
+.enemy {
+    background: url("img/tile-E.png") center/contain no-repeat;
+}
+
+.sword {
+    background: url("img/tile-SW.png") center/contain no-repeat;
+}
+
+.potion {
+    background: url("img/tile-HP.png") center/contain no-repeat;
+}
