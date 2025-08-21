@@ -1,262 +1,252 @@
-$(function() {
-    var W = 40, H = 24;
-    var map = []; // 2D массив карты
-    var hero = {x:0, y:0, hp:100, maxHp: 100, atk:1}; // Added maxHp for hero
-    var enemies = [];
-    var ENEMY_MAX_HP = 20; // Define max HP for enemies
+$(function () {
+    class Hero {
+        constructor(x, y, hp = 100, maxHp = 100, atk = 1) {
+            this.x = x;
+            this.y = y;
+            this.hp = hp;
+            this.maxHp = maxHp;
+            this.atk = atk;
+        }
 
-    // ---------- генерация карты ----------
-    function createMap() {
-        var x, y;
-        for (y=0; y<H; y++) {
-            map[y] = [];
-            for (x=0; x<W; x++) {
-                map[y][x] = "wall";
+        move(dx, dy, game) {
+            const nx = this.x + dx, ny = this.y + dy;
+            if (nx < 0 || ny < 0 || nx >= game.W || ny >= game.H) return;
+            const cell = game.map[ny][nx];
+            if (cell === "wall") return;
+            for (let enemy of game.enemies) {
+                if (enemy.x === nx && enemy.y === ny) return;
+            }
+            if (cell === "potion") {
+                this.hp = Math.min(this.hp + 30, this.maxHp);
+                game.map[ny][nx] = "floor";
+            } else if (cell === "sword") {
+                this.atk++;
+                game.map[ny][nx] = "floor";
+            }
+            this.x = nx;
+            this.y = ny;
+            game.enemyTurn();
+        }
+
+        attack(game) {
+            const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+            let attacked = false;
+            for (let [dx, dy] of dirs) {
+                const nx = this.x + dx, ny = this.y + dy;
+                for (let i = game.enemies.length - 1; i >= 0; i--) {
+                    if (game.enemies[i].x === nx && game.enemies[i].y === ny) {
+                        attacked = true;
+                        game.enemies[i].hp -= this.atk;
+                        if (game.enemies[i].hp <= 0) {
+                            game.enemies.splice(i, 1);
+                        }
+                    }
+                }
+            }
+            if (attacked) {
+                game.enemyTurn();
             }
         }
     }
 
-    function carveRoom(x1,y1,w,h) {
-        var x,y;
-        for (y=y1; y<y1+h; y++) {
-            for (x=x1; x<x1+w; x++) {
-                // Check bounds to avoid carving into the outer walls
-                if (x>0 && y>0 && x<W-1 && y<H-1) {
-                    map[y][x] = "floor";
+    class Enemy {
+        constructor(x, y, hp = 20, maxHp = 20) {
+            this.x = x;
+            this.y = y;
+            this.hp = hp;
+            this.maxHp = maxHp;
+        }
+    }
+
+    class Game {
+        constructor(W = 40, H = 24) {
+            this.W = W;
+            this.H = H;
+            this.map = [];
+            this.hero = null;
+            this.enemies = [];
+        }
+
+        createMap() {
+            for (let y = 0; y < this.H; y++) {
+                this.map[y] = [];
+                for (let x = 0; x < this.W; x++) {
+                    this.map[y][x] = "wall";
                 }
             }
         }
-    }
 
-    function makeRooms() {
-        // Random number of rooms (5-10)
-        var rooms = 5 + Math.floor(Math.random()*6);
-        var i;
-        for (i=0; i<rooms; i++) {
-            // Random width and height (3-8)
-            var w = 3 + Math.floor(Math.random()*6);
-            var h = 3 + Math.floor(Math.random()*6);
-            // Random position (ensure it fits)
-            var x = 1 + Math.floor(Math.random()*(W-w-2));
-            var y = 1 + Math.floor(Math.random()*(H-h-2));
-            carveRoom(x,y,w,h);
-        }
-    }
-
-    function makeCorridors() {
-        var i;
-        // 3-5 horizontal corridors
-        var hCorridors = 3 + Math.floor(Math.random() * 3);
-        for(i=0; i < hCorridors; i++) {
-            // Pick a random row (not the very top or bottom)
-            var y = 1 + Math.floor(Math.random()*(H-2));
-            for(var x=0; x<W; x++) map[y][x]="floor";
-        }
-        // 3-5 vertical corridors
-        var vCorridors = 3 + Math.floor(Math.random() * 3);
-        for(i=0; i < vCorridors; i++) {
-            // Pick a random column (not the very left or right)
-            var x = 1 + Math.floor(Math.random()*(W-2));
-            for(var y=0; y<H; y++) map[y][x]="floor";
-        }
-    }
-
-    function placeItems(type,count) {
-        while(count>0) {
-            var x = Math.floor(Math.random()*W);
-            var y = Math.floor(Math.random()*H);
-            if(map[y][x]==="floor") {
-                map[y][x]=type;
-                count--;
+        carveRoom(x1, y1, w, h) {
+            for (let y = y1; y < y1 + h; y++) {
+                for (let x = x1; x < x1 + w; x++) {
+                    if (x > 0 && y > 0 && x < this.W - 1 && y < this.H - 1) {
+                        this.map[y][x] = "floor";
+                    }
+                }
             }
         }
-    }
 
-    function placeHero() {
-        while(true) {
-            var x = Math.floor(Math.random()*W);
-            var y = Math.floor(Math.random()*H);
-            if(map[y][x]==="floor") {
-                hero.x=x; hero.y=y;
-                break;
+        makeRooms() {
+            let rooms = 5 + Math.floor(Math.random() * 6);
+            for (let i = 0; i < rooms; i++) {
+                let w = 3 + Math.floor(Math.random() * 6);
+                let h = 3 + Math.floor(Math.random() * 6);
+                let x = 1 + Math.floor(Math.random() * (this.W - w - 2));
+                let y = 1 + Math.floor(Math.random() * (this.H - h - 2));
+                console.log(`Room made: ${i}: x=${x}, y=${y}, w=${w}, h=${h}`);
+                this.carveRoom(x, y, w, h);
             }
         }
-    }
 
-    function placeEnemies(n) {
-        for(var i=0; i<n; i++) {
-            while(true) {
-                var x = Math.floor(Math.random()*W);
-                var y = Math.floor(Math.random()*H);
-                if(map[y][x]==="floor") {
-                    // Add maxHp to enemies
-                    enemies.push({x:x, y:y, hp: ENEMY_MAX_HP, maxHp: ENEMY_MAX_HP});
+        makeCorridors() {
+            let hCorridors = 3 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < hCorridors; i++) {
+                let y = 1 + Math.floor(Math.random() * (this.H - 2));
+                for (let x = 0; x < this.W; x++) this.map[y][x] = "floor";
+            }
+            let vCorridors = 3 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < vCorridors; i++) {
+                let x = 1 + Math.floor(Math.random() * (this.W - 2));
+                for (let y = 0; y < this.H; y++) this.map[y][x] = "floor";
+            }
+        }
+
+        placeItems(type, count) {
+            while (count > 0) {
+                let x = Math.floor(Math.random() * this.W);
+                let y = Math.floor(Math.random() * this.H);
+                if (this.map[y][x] === "floor") {
+                    this.map[y][x] = type;
+                    count--;
+                }
+            }
+        }
+
+        placeHero() {
+            while (true) {
+                let x = Math.floor(Math.random() * this.W);
+                let y = Math.floor(Math.random() * this.H);
+                if (this.map[y][x] === "floor") {
+                    this.hero = new Hero(x, y);
                     break;
                 }
             }
         }
-    }
 
-    // ---------- рендер ----------
-    function draw() {
-        var html = "";
-        var y,x;
-        for(y=0; y<H; y++) {
-            for(x=0; x<W; x++) {
-                var cls = map[y][x];
-                var healthBar = "";
+        placeEnemies(n) {
+            for (let i = 0; i < n; i++) {
+                while (true) {
+                    let x = Math.floor(Math.random() * this.W);
+                    let y = Math.floor(Math.random() * this.H);
+                    if (this.map[y][x] === "floor") {
+                        this.enemies.push(new Enemy(x, y));
+                        break;
+                    }
+                }
+            }
+        }
 
-                if(hero.x===x && hero.y===y) {
-                    cls="hero";
-                    var heroHealthPercent = (hero.hp / hero.maxHp) * 100;
-                    healthBar = '<div class="health" style="width: '+heroHealthPercent+'%;"></div>';
+        draw() {
+            let html = "";
+            for (let y = 0; y < this.H; y++) {
+                for (let x = 0; x < this.W; x++) {
+                    let cls = this.map[y][x];
+                    let healthBar = "";
+                    let style = `left: ${x * 50}px; top: ${y * 50}px;`;
+                    let logMsg = `Rendering tile at (${x},${y}): class=${cls}`;
+                    if (this.hero.x === x && this.hero.y === y) {
+                        cls = "hero";
+                        let heroHealthPercent = (this.hero.hp / this.hero.maxHp) * 100;
+                        healthBar = '<div class="health" style="width: ' + heroHealthPercent + '%;"></div>';
+                        logMsg += ", HERO present";
+                    } else {
+                        for (let enemy of this.enemies) {
+                            if (enemy.x === x && enemy.y === y) {
+                                cls = "enemy";
+                                let enemyHealthPercent = (enemy.hp / enemy.maxHp) * 100;
+                                healthBar = '<div class="health" style="width: ' + enemyHealthPercent + '%;"></div>';
+                                logMsg += ", ENEMY present";
+                                break;
+                            }
+                        }
+                    }
+                    console.log(logMsg);
+                    html += `<div class="tile ${cls}" style="${style}">${healthBar}</div>`;
+                }
+            }
+            $(".field").html(html);
+            $("#health").text("❤️ " + this.hero.hp);
+            $("#attack").text("⚔️ " + this.hero.atk);
+            console.log("Rendering complete. HTML length:", html.length);
+        }
+
+        enemyTurn() {
+            const dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+            for (let i = 0; i < this.enemies.length; i++) {
+                let e = this.enemies[i];
+                let isAdjacentToHero = false;
+                for (let d = 0; d < dirs.length; d++) {
+                    if (e.x + dirs[d][0] === this.hero.x && e.y + dirs[d][1] === this.hero.y) {
+                        isAdjacentToHero = true;
+                        break;
+                    }
+                }
+                if (isAdjacentToHero) {
+                    this.hero.hp -= 5;
+                    if (this.hero.hp <= 0) {
+                        this.draw();
+                        alert("Вы погибли!");
+                        location.reload();
+                        return;
+                    }
                 } else {
-                    for(var i=0; i<enemies.length; i++) {
-                        if(enemies[i].x===x && enemies[i].y===y) {
-                            cls="enemy";
-                            var enemyHealthPercent = (enemies[i].hp / enemies[i].maxHp) * 100;
-                            healthBar = '<div class="health" style="width: '+enemyHealthPercent+'%;"></div>';
-                            break;
+                    let r = dirs[Math.floor(Math.random() * 4)];
+                    let nx = e.x + r[0];
+                    let ny = e.y + r[1];
+                    if (nx >= 0 && ny >= 0 && nx < this.W && ny < this.H && this.map[ny][nx] !== "wall") {
+                        let blocked = false;
+                        for (let j = 0; j < this.enemies.length; j++) {
+                            if (this.enemies[j].x === nx && this.enemies[j].y === ny) {
+                                blocked = true;
+                                break;
+                            }
                         }
-                    }
-                }
-                html += '<div class="tile '+cls+'">' + healthBar + '</div>';
-            }
-        }
-        $(".field").html(html);
-        $("#health").text("❤️ "+hero.hp);
-        $("#attack").text("⚔️ "+hero.atk);
-    }
-
-    // ---------- логика хода ----------
-    function moveHero(dx,dy) {
-        var nx = hero.x+dx, ny = hero.y+dy;
-        // Check boundaries
-        if(nx<0 || ny<0 || nx>=W || ny>=H) return;
-
-        // Check for wall
-        var cell = map[ny][nx];
-        if(cell === "wall") return;
-
-        // Check for enemy collision
-        for (var i = 0; i < enemies.length; i++) {
-            if (enemies[i].x === nx && enemies[i].y === ny) {
-                return; // Can't move into an enemy tile
-            }
-        }
-
-        // Handle item pickup
-        if(cell === "potion") {
-            hero.hp = Math.min(hero.hp+30, hero.maxHp);
-            map[ny][nx]="floor";
-        } else if(cell === "sword") {
-            hero.atk++;
-            map[ny][nx]="floor";
-        }
-
-        // Move hero
-        hero.x=nx; hero.y=ny;
-        enemyTurn(); // Let enemies have their turn after hero moves
-    }
-
-    function heroAttack() {
-        var dirs=[[1,0],[-1,0],[0,1],[0,-1]];
-        var attacked = false;
-        for(var i=0; i<dirs.length; i++) {
-            var nx = hero.x + dirs[i][0];
-            var ny = hero.y + dirs[i][1]; // <-- BUG FIX: Was dirs[i]
-            for(var j=enemies.length-1; j>=0; j--) { // Iterate backwards for safe removal
-                if(enemies[j].x===nx && enemies[j].y===ny) {
-                    attacked = true;
-                    enemies[j].hp -= hero.atk;
-                    if(enemies[j].hp<=0) {
-                        enemies.splice(j,1);
-                    }
-                }
-            }
-        }
-        if (attacked) {
-            enemyTurn(); // Only let enemies move if an attack was performed
-        }
-    }
-
-    function enemyTurn() {
-        var dirs=[[1,0],[-1,0],[0,1],[0,-1]];
-        for(var i=0; i<enemies.length; i++) {
-            var e = enemies[i];
-            var isAdjacentToHero = false;
-
-            // Check if hero is adjacent
-            for(var d=0; d<dirs.length; d++) {
-                if(e.x + dirs[d][0] === hero.x && e.y + dirs[d][1] === hero.y) { // <-- BUG FIX: was dirs[d] for y
-                    isAdjacentToHero = true;
-                    break;
-                }
-            }
-
-            // If adjacent, attack hero
-            if(isAdjacentToHero) {
-                hero.hp -= 5;
-                if(hero.hp <= 0) {
-                    draw(); // Draw one last time to show 0 hp
-                    alert("Вы погибли!");
-                    location.reload();
-                    return; // Exit function if hero is dead
-                }
-            } else { // Otherwise, move randomly
-                var r = dirs[Math.floor(Math.random()*4)];
-                var nx = e.x + r[0]; // <-- BUG FIX: was e.x + r
-                var ny = e.y + r[1]; // <-- BUG FIX: was e.y + r
-
-                if(nx>=0 && ny>=0 && nx<W && ny<H && map[ny][nx]!=="wall") {
-                    var blocked = false;
-                    // Check for other enemies
-                    for(var j=0; j<enemies.length; j++) {
-                        if(enemies[j].x === nx && enemies[j].y === ny) {
+                        if (this.hero.x === nx && this.hero.y === ny) {
                             blocked = true;
-                            break;
                         }
-                    }
-                    // Check for hero
-                    if(hero.x === nx && hero.y === ny) {
-                        blocked = true;
-                    }
-
-                    if(!blocked) {
-                        e.x = nx;
-                        e.y = ny;
+                        if (!blocked) {
+                            e.x = nx;
+                            e.y = ny;
+                        }
                     }
                 }
             }
+            this.draw();
         }
-        // The draw() call was removed from here, it's handled by the keydown handler
     }
 
     // ---------- управление ----------
-    $(document).keydown(function(e) {
-        if(hero.hp <= 0) return; // Don't allow moves if hero is dead
+    $(document).keydown(function (e) {
+        if (game.hero.hp <= 0) return;
 
-        if(e.key==="w") moveHero(0,-1);
-        else if(e.key==="s") moveHero(0,1);
-        else if(e.key==="a") moveHero(-1,0);
-        else if(e.key==="d") moveHero(1,0);
-        else if(e.key===" ") heroAttack();
-        else return; // Don't redraw if other key was pressed
+        if (e.key === "w") game.hero.move(0, -1, game);
+        else if (e.key === "s") game.hero.move(0, 1, game);
+        else if (e.key === "a") game.hero.move(-1, 0, game);
+        else if (e.key === "d") game.hero.move(1, 0, game);
+        else if (e.key === " ") game.hero.attack(game);
+        else return;
 
-        draw(); // Redraw the screen after any valid action
+        game.draw();
     });
 
     // ---------- старт ----------
-    function init() {
-        createMap();
-        makeRooms();
-        makeCorridors();
-        placeItems("sword",2);
-        placeItems("potion",10);
-        placeHero();
-        placeEnemies(10);
-        draw();
-    }
-
-    init();
+    const game = new Game();
+    game.createMap();
+    game.makeRooms();
+    game.makeCorridors();
+    game.placeItems("sword", 2);
+    game.placeItems("potion", 10);
+    game.placeHero();
+    game.placeEnemies(10);
+    game.draw();
 });

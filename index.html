@@ -1,17 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Рогалик на JS</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu:300,400,700&amp;subset=cyrillic" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700&amp;subset=cyrillic" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,700&amp;subset=cyrillic" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:400,400i|Tinos:400,400i&amp;subset=cyrillic" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
     <script src="script.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body, html { height: 100%; margin: 0; padding: 0; background-color: #000000; color: #ffffff; }
+        h1 { font-family: "Playfair Display"; font-size: 30px; padding: 10px 0; margin: 0; }
+        .field-box { border: 2px solid #d0d0d0; float: left; }
+        .field { position: relative; width: 1024px; height: 640px; }
+        .field .tile { position: absolute; width: 50px; height: 50px; background-size: 100%; background-image: url(img/tile-.png); z-index: 5; }
+        .field .tileW { background-image: url("img/tile-W.png"); }
+        .field .tileE { background-image: url("img/tile-E.png"); z-index: 10; }
+        .field .tileP { background-image: url("img/tile-P.png"); z-index: 10; }
+        .field .tileHP { background-image: url("img/tile-HP.png"); z-index: 9; }
+        .field .tileSW { background-image: url("img/tile-SW.png"); z-index: 9; }
+        .field .tile .health { background-color: #ff0000; z-index: 11; position: absolute; left: 0; top: 0; height: 3px; }
+        .field .tileP .health { background-color: #00ff00; z-index: 11; position: absolute; left: 0; top: 0; height: 3px; }
+        .inventory-box { border: 2px solid #d0d0d0; float: left; }
+        .inventory { position: relative; width: 800px; height: 32px; }
+        .cl { clear: both; display: block; }
+        .info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: "Roboto", sans-serif;
+        }
+        .info span {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 18px;
+        }
+    </style>
 </head>
 <body>
-<div class="info">
-    <span id="health">❤️ 100</span>
-    <span id="attack">⚔️ 1</span>
-</div>
-<div class="field"></div>
+    <div class="info">
+        <span id="health">❤️ 100</span>
+        <span id="attack">⚔️ 1</span>
+    </div>
+    <h1>Игровое поле</h1>
+    <div class="field-box">
+        <div class="field"></div>
+    </div>
+    <div class="cl"></div>
+    <!--h1>Инвентарь</h1>
+    <div class="inventory-box"><div class="inventory"></div></div-->
+    <script>
+        // var game = new Game();
+        // game.init();
+    </script>
 </body>
+
 </html>

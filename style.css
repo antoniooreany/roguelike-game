@@ -35,25 +35,137 @@ body {
 }
 
 .wall {
-    background: url("img/tile-W.png") center/contain no-repeat;
+    background: url("img/tile-W.png") center/contain no-repeat !important;
 }
 
 .floor {
-    background: url("img/tile-.png") center / contain no-repeat;
+    background: url("img/tile-.png") center / contain no-repeat !important;
 }
 
 .hero {
-    background: url("img/tile-P.png") center/contain no-repeat;
+    background: url("img/tile-P.png") center/contain no-repeat !important;
 }
 
 .enemy {
-    background: url("img/tile-E.png") center/contain no-repeat;
+    background: url("img/tile-E.png") center/contain no-repeat !important;
 }
 
 .sword {
-    background: url("img/tile-SW.png") center/contain no-repeat;
+    background: url("img/tile-SW.png") center/contain no-repeat !important;
 }
 
 .potion {
-    background: url("img/tile-HP.png") center/contain no-repeat;
+    background: url("img/tile-HP.png") center/contain no-repeat !important;
 }
+
+
+/** {*/
+/*    box-sizing: border-box;*/
+/*}*/
+
+/*body, html {*/
+/*    height: 100%;*/
+/*    margin: 0;*/
+/*    padding: 0;*/
+/*    background-color: #000;*/
+/*    color: #fff;*/
+/*}*/
+
+/*h1 {*/
+/*    font-family: "Playfair Display", serif;*/
+/*    font-size: 30px;*/
+/*    padding: 10px 0;*/
+/*    margin: 0;*/
+/*}*/
+
+/*.field-box, .inventory-box {*/
+/*    border: 2px solid #d0d0d0;*/
+/*    float: left;*/
+/*}*/
+
+/*.field {*/
+/*    position: relative;*/
+/*    width: 1024px;*/
+/*    height: 640px;*/
+/*}*/
+
+/*.field .tile {*/
+/*    position: absolute;*/
+/*    width: 50px;*/
+/*    height: 50px;*/
+/*    background-size: 100%;*/
+/*    z-index: 5;*/
+/*    background-image: url("img/tile-.png");*/
+/*}*/
+
+/*.field .tileW {*/
+/*    border: 2px solid #444;*/
+/*}*/
+
+/*.field .tileE, .field .tileP {*/
+/*    z-index: 10;*/
+/*}*/
+
+/*.field .tileE {*/
+/*    border: 2px solid #c00;*/
+/*}*/
+
+/*.field .tileP {*/
+/*    border: 2px solid #08f;*/
+/*}*/
+
+/*.field .tileHP, .field .tileSW {*/
+/*    z-index: 9;*/
+/*}*/
+
+/*.field .tileHP {*/
+/*    border: 2px solid #0c0;*/
+/*}*/
+
+/*.field .tileSW {*/
+/*    border: 2px solid #ff0;*/
+/*}*/
+
+/*.field .tile .health, .field .tileP .health {*/
+/*    position: absolute;*/
+/*    left: 0;*/
+/*    top: 0;*/
+/*    height: 3px;*/
+/*    z-index: 11;*/
+/*}*/
+
+/*.field .tile .health {*/
+/*    background-color: #f00;*/
+/*}*/
+
+/*.field .tileP .health {*/
+/*    background-color: #0f0;*/
+/*}*/
+
+/*.inventory {*/
+/*    position: relative;*/
+/*    width: 800px;*/
+/*    height: 32px;*/
+/*}*/
+
+/*.cl {*/
+/*    clear: both;*/
+/*    display: block;*/
+/*}*/
+
+/*.info {*/
+/*    position: absolute;*/
+/*    top: 10px;*/
+/*    right: 10px;*/
+/*    z-index: 100;*/
+/*    background: rgba(0, 0, 0, 0.7);*/
+/*    padding: 10px;*/
+/*    border-radius: 5px;*/
+/*    font-family: "Roboto", sans-serif;*/
+/*}*/
+
+/*.info span {*/
+/*    display: inline-block;*/
+/*    margin: 0 10px;*/
+/*    font-size: 18px;*/
+/*}*/
