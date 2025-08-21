@@ -1,4 +1,5 @@
-$(function () {
+// Wait for the DOM to be fully loaded
+$(document).ready(function() {
     class Hero {
         constructor(x, y, hp = 100, maxHp = 100, atk = 1) {
             this.x = x;
@@ -86,35 +87,40 @@ $(function () {
             }
         }
 
+        // Utility to get a random integer in a range [min, max]
+        getRandomInRange(min, max) {
+            return min + Math.floor(Math.random() * (max - min + 1));
+        }
+
         makeRooms() {
-            let rooms = 5 + Math.floor(Math.random() * 6);
+            let rooms = this.getRandomInRange(5, 10);
             for (let i = 0; i < rooms; i++) {
-                let w = 3 + Math.floor(Math.random() * 6);
-                let h = 3 + Math.floor(Math.random() * 6);
-                let x = 1 + Math.floor(Math.random() * (this.W - w - 2));
-                let y = 1 + Math.floor(Math.random() * (this.H - h - 2));
+                let w = this.getRandomInRange(3, 8);
+                let h = this.getRandomInRange(3, 8);
+                let x = this.getRandomInRange(1, this.W - w - 2);
+                let y = this.getRandomInRange(1, this.H - h - 2);
                 console.log(`Room made: ${i}: x=${x}, y=${y}, w=${w}, h=${h}`);
                 this.carveRoom(x, y, w, h);
             }
         }
 
         makeCorridors() {
-            let hCorridors = 3 + Math.floor(Math.random() * 3);
+            let hCorridors = this.getRandomInRange(3, 5);
             for (let i = 0; i < hCorridors; i++) {
-                let y = 1 + Math.floor(Math.random() * (this.H - 2));
+                let y = this.getRandomInRange(1, this.H - 2);
                 for (let x = 0; x < this.W; x++) this.map[y][x] = "floor";
             }
-            let vCorridors = 3 + Math.floor(Math.random() * 3);
+            let vCorridors = this.getRandomInRange(3, 5);
             for (let i = 0; i < vCorridors; i++) {
-                let x = 1 + Math.floor(Math.random() * (this.W - 2));
+                let x = this.getRandomInRange(1, this.W - 2);
                 for (let y = 0; y < this.H; y++) this.map[y][x] = "floor";
             }
         }
 
         placeItems(type, count) {
             while (count > 0) {
-                let x = Math.floor(Math.random() * this.W);
-                let y = Math.floor(Math.random() * this.H);
+                let x = this.getRandomInRange(0, this.W - 1);
+                let y = this.getRandomInRange(0, this.H - 1);
                 if (this.map[y][x] === "floor") {
                     this.map[y][x] = type;
                     count--;
@@ -124,8 +130,8 @@ $(function () {
 
         placeHero() {
             while (true) {
-                let x = Math.floor(Math.random() * this.W);
-                let y = Math.floor(Math.random() * this.H);
+                let x = this.getRandomInRange(0, this.W - 1);
+                let y = this.getRandomInRange(0, this.H - 1);
                 if (this.map[y][x] === "floor") {
                     this.hero = new Hero(x, y);
                     break;
@@ -136,8 +142,8 @@ $(function () {
         placeEnemies(n) {
             for (let i = 0; i < n; i++) {
                 while (true) {
-                    let x = Math.floor(Math.random() * this.W);
-                    let y = Math.floor(Math.random() * this.H);
+                    let x = this.getRandomInRange(0, this.W - 1);
+                    let y = this.getRandomInRange(0, this.H - 1);
                     if (this.map[y][x] === "floor") {
                         this.enemies.push(new Enemy(x, y));
                         break;
