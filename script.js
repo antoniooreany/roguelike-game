@@ -144,7 +144,7 @@ $(document).ready(function() {
                 while (true) {
                     let x = this.getRandomInRange(0, this.W - 1);
                     let y = this.getRandomInRange(0, this.H - 1);
-                    if (this.map[y][x] === "floor") {
+                    if (this.map[y] && this.map[y][x] === "floor") {
                         this.enemies.push(new Enemy(x, y));
                         break;
                     }
