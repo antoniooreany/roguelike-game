@@ -45,11 +45,6 @@ $(document).ready(function () {
     };
 
     /**
-     * Attacks an enemy.
-     * @param {Game} game - The game instance.
-     */
-
-    /**
      * Makes the hero attack adjacent enemies.
      * @param {Game} game - The game instance.
      */
@@ -124,14 +119,14 @@ $(document).ready(function () {
 
     /**
      * Carves a rectangular room into the map.
-     * @param {number} x1 - The starting x-coordinate of the room.
-     * @param {number} y1 - The starting y-coordinate of the room.
+     * @param {number} xStart - The starting x-coordinate of the room.
+     * @param {number} yStart - The starting y-coordinate of the room.
      * @param {number} w - The width of the room.
      * @param {number} h - The height of the room.
      */
-    Game.prototype.carveRoom = function (x1, y1, w, h) {
-        for (var y = y1; y < y1 + h; y++) {
-            for (var x = x1; x < x1 + w; x++) {
+    Game.prototype.carveRoom = function (xStart, yStart, w, h) {
+        for (var y = yStart; y < yStart + h; y++) {
+            for (var x = xStart; x < xStart + w; x++) {
                 if (x > 0 && y > 0 && x < this.W - 1 && y < this.H - 1) {
                     // Ensure the room is within the map boundaries (with a 1-tile border)
                     this.map[y][x] = "floor";
@@ -140,10 +135,6 @@ $(document).ready(function () {
         }
     };
 
-    // /**
-    //  * Generates a random integer within a specified range.
-    //  * @param {number} min - The minimum value of the range.
-    //  * @param {}
     /**
      * Utility function to get a random integer within a specified range.
      * @param {number} min - The minimum value (inclusive).
@@ -168,19 +159,18 @@ $(document).ready(function () {
         }
     };
 
-    // /**
-    //  * Generates and carves a random number of corridors onto the map.
-    //  */
     /**
      * Creates horizontal and vertical corridors to connect rooms.
      * This is a simple method that may result in a very open map.
      */
     Game.prototype.makeCorridors = function () {
+        // Generate random horizontal corridors
         var hCorridors = this.getRandomInRange(3, 5);
         for (var i = 0; i < hCorridors; i++) {
             var y = this.getRandomInRange(1, this.H - 2);
             for (var x = 0; x < this.W; x++) this.map[y][x] = "floor";
         }
+        // Generate random vertical corridors
         var vCorridors = this.getRandomInRange(3, 5);
         for (var i = 0; i < vCorridors; i++) {
             var x = this.getRandomInRange(1, this.W - 2);
@@ -188,15 +178,13 @@ $(document).ready(function () {
         }
     };
 
-    // /**
-    //  * Places items on the map.
-    //
     /**
      * Places a specified number of items of a certain type on random "floor" tiles.
      * @param {string} type - The type of item to place (e.g., "potion", "sword").
      * @param {number} count - The number of items to place.
      */
     Game.prototype.placeItems = function (type, count) {
+
         while (count > 0) {
             var x = this.getRandomInRange(0, this.W - 1);
             var y = this.getRandomInRange(0, this.H - 1);
@@ -205,8 +193,18 @@ $(document).ready(function () {
                 count--;
             }
         }
-    };
 
+        // for (var i = 0; i < count; i++) {
+        //     while (true) { // TODO comment it out? When it is commented out, the only 1 sword and 1 potion are placed.
+        //         var x = this.getRandomInRange(0, this.W - 1);
+        //         var y = this.getRandomInRange(0, this.H - 1);
+        //         if (this.map[y][x] === "floor") {
+        //             this.map[y][x] = type;
+        //             break;
+        //         }
+        //     } // TODO comment it out?
+        // }
+    };
 
     /**
      * Places the hero on a random "floor" tile.
@@ -322,7 +320,6 @@ $(document).ready(function () {
     //     $("#health").text("❤️ " + this.hero.hp);
     //     $("#attack").text("⚔️ " + this.hero.atk);
     // };
-
 
 
     /**
