@@ -157,12 +157,12 @@ $(document).ready(function () {
      * Carves a rectangular room into the map.
      * @param {number} xStart - The starting x-coordinate of the room.
      * @param {number} yStart - The starting y-coordinate of the room.
-     * @param {number} w - The width of the room.
-     * @param {number} h - The height of the room.
+     * @param {number} roomWidth - The width of the room.
+     * @param {number} roomHeight - The height of the room.
      */
-    Game.prototype.carveRoom = function (xStart, yStart, w, h) {
-        for (var y = yStart; y < yStart + h; y++) {
-            for (var x = xStart; x < xStart + w; x++) {
+    Game.prototype.carveRoom = function (xStart, yStart, roomWidth, roomHeight) {
+        for (var y = yStart; y < yStart + roomHeight; y++) {
+            for (var x = xStart; x < xStart + roomWidth; x++) {
                 if (x > 0 && y > 0 && x < this.fieldWidht - 1 && y < this.fieldHight - 1) {
                     // Ensure the room is within the map boundaries (with a 1-tile border)
                     this.map[y][x] = "floor";
@@ -185,13 +185,13 @@ $(document).ready(function () {
      * Generates and carves a random number of rooms onto the map.
      */
     Game.prototype.makeRooms = function () {
-        var rooms = this.getRandomInRange(5, 10);
+        var rooms = this.getRandomInRange(CONFIG.MIN_ROOMS, CONFIG.MAX_ROOMS);
         for (var i = 0; i < rooms; i++) {
-            var w = this.getRandomInRange(3, 8);
-            var h = this.getRandomInRange(3, 8);
-            var x = this.getRandomInRange(1, this.fieldWidht - w - 2);
-            var y = this.getRandomInRange(1, this.fieldHight - h - 2);
-            this.carveRoom(x, y, w, h);
+            var roomWidth = this.getRandomInRange(CONFIG.MIN_ROOM_SIZE, CONFIG.MAX_ROOM_SIZE);
+            var roomHeight = this.getRandomInRange(CONFIG.MIN_ROOM_SIZE, CONFIG.MAX_ROOM_SIZE);
+            var x = this.getRandomInRange(1, this.fieldWidht - roomWidth - 2); // TODO how to call the constants 1 and 2 here?
+            var y = this.getRandomInRange(1, this.fieldHight - roomHeight - 2); // TODO how to call the constants 1 and 2 here?
+            this.carveRoom(x, y, roomWidth, roomHeight);
         }
     };
 
