@@ -65,6 +65,13 @@ $(document).ready(function () {
             }
         }
         if (attacked) {
+            // Check for win condition after attacking
+            if (game.enemies.length === 0) {
+                game.draw(); // Redraw to show the last enemy is gone
+                alert("You win!");
+                location.reload(); // Restart the game
+                return; // Stop the turn
+            }
             game.enemyTurn();
         }
     };
@@ -478,6 +485,7 @@ $(document).ready(function () {
     game.ensureReachable();
     // Place enemies on the map
     game.placeEnemies(10);
+    // game.placeEnemies(1);
     // Draw the initial game state
     game.draw();
 });
