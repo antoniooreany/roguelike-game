@@ -457,36 +457,87 @@ $(document).ready(function() {
     //     this.field.innerHTML = html; // Single DOM update
     // };
 
+    // Game.prototype.draw = function() {
+    //     // this.updateTiles();
+    //     var html = "";
+    //     for (var y = 0; y < this.H; y++) {
+    //         for (var x = 0; x < this.W; x++) {
+    //             var cls = this.map[y][x];
+    //             var healthBar = "";
+    //             var style = "left: " + (x * 50) + "px; top: " + (y * 50) + "px;";
+    //             if (this.hero.x === x && this.hero.y === y) {
+    //                 cls = "hero";
+    //                 var heroHealthPercent = (this.hero.hp / this.hero.maxHp) * 100;
+    //                 healthBar = '<div class="health-hero" style="width: ' + heroHealthPercent + '%;"></div>';
+    //             } else {
+    //                 for (var i = 0; i < this.enemies.length; i++) {
+    //                     var enemy = this.enemies[i];
+    //                     if (enemy.x === x && enemy.y === y) {
+    //                         cls = "enemy";
+    //                         var enemyHealthPercent = (enemy.hp / enemy.maxHp) * 100;
+    //                         healthBar = '<div class="health-enemy" style="width: ' + enemyHealthPercent + '%;"></div>';
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             html += '<div class="tile ' + cls + '" style="' + style + '">' + healthBar + '</div>';
+    //         }
+    //     }
+    //     $(".field").html(html);
+    //     $("#health").text("❤️ " + this.hero.hp);
+    //     $("#attack").text("⚔️ " + this.hero.atk);
+    // };
+
+
     Game.prototype.draw = function() {
-        // this.updateTiles();
-        var html = "";
-        for (var y = 0; y < this.H; y++) {
-            for (var x = 0; x < this.W; x++) {
-                var cls = this.map[y][x];
-                var healthBar = "";
-                var style = "left: " + (x * 50) + "px; top: " + (y * 50) + "px;";
+        const fragment = document.createDocumentFragment();
+        const field = document.querySelector(".field");
+        field.innerHTML = ""; // Clear the field
+
+        for (let y = 0; y < this.H; y++) {
+            for (let x = 0; x < this.W; x++) {
+                const tile = document.createElement("div");
+                tile.classList.add("tile");
+                tile.style.left = `${x * 50}px`;
+                tile.style.top = `${y * 50}px`;
+
+                let cls = this.map[y][x];
+                let healthBar = null;
+
                 if (this.hero.x === x && this.hero.y === y) {
                     cls = "hero";
-                    var heroHealthPercent = (this.hero.hp / this.hero.maxHp) * 100;
-                    healthBar = '<div class="health-hero" style="width: ' + heroHealthPercent + '%;"></div>';
+                    const heroHealthPercent = (this.hero.hp / this.hero.maxHp) * 100;
+                    healthBar = document.createElement("div");
+                    healthBar.classList.add("health-hero");
+                    healthBar.style.width = `${heroHealthPercent}%`;
                 } else {
-                    for (var i = 0; i < this.enemies.length; i++) {
-                        var enemy = this.enemies[i];
+                    for (const enemy of this.enemies) {
                         if (enemy.x === x && enemy.y === y) {
                             cls = "enemy";
-                            var enemyHealthPercent = (enemy.hp / enemy.maxHp) * 100;
-                            healthBar = '<div class="health-enemy" style="width: ' + enemyHealthPercent + '%;"></div>';
+                            const enemyHealthPercent = (enemy.hp / enemy.maxHp) * 100;
+                            healthBar = document.createElement("div");
+                            healthBar.classList.add("health-enemy");
+                            healthBar.style.width = `${enemyHealthPercent}%`;
                             break;
                         }
                     }
                 }
-                html += '<div class="tile ' + cls + '" style="' + style + '">' + healthBar + '</div>';
+
+                tile.classList.add(cls);
+                if (healthBar) {
+                    tile.appendChild(healthBar);
+                }
+                fragment.appendChild(tile);
             }
         }
-        $(".field").html(html);
-        $("#health").text("❤️ " + this.hero.hp);
-        $("#attack").text("⚔️ " + this.hero.atk);
+
+        field.appendChild(fragment);
+
+        document.querySelector("#health").textContent = `❤️ ${this.hero.hp}`;
+        document.querySelector("#attack").textContent = `⚔️ ${this.hero.atk}`;
     };
+
+
 
     Game.prototype.enemyTurn = function() {
         var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
@@ -503,7 +554,7 @@ $(document).ready(function() {
                 this.hero.hp -= 5;
                 if (this.hero.hp <= 0) {
                     this.draw();
-                    alert("You are dead!");
+                    alert("Game over!");
                     location.reload();
                     return;
                 }
