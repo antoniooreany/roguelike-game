@@ -468,14 +468,14 @@ $(document).ready(function() {
                 if (this.hero.x === x && this.hero.y === y) {
                     cls = "hero";
                     var heroHealthPercent = (this.hero.hp / this.hero.maxHp) * 100;
-                    healthBar = '<div class="health" style="width: ' + heroHealthPercent + '%;"></div>';
+                    healthBar = '<div class="health-hero" style="width: ' + heroHealthPercent + '%;"></div>';
                 } else {
                     for (var i = 0; i < this.enemies.length; i++) {
                         var enemy = this.enemies[i];
                         if (enemy.x === x && enemy.y === y) {
                             cls = "enemy";
                             var enemyHealthPercent = (enemy.hp / enemy.maxHp) * 100;
-                            healthBar = '<div class="health" style="width: ' + enemyHealthPercent + '%;"></div>';
+                            healthBar = '<div class="health-enemy" style="width: ' + enemyHealthPercent + '%;"></div>';
                             break;
                         }
                     }

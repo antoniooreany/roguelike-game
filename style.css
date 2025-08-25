@@ -25,14 +25,35 @@ body {
     overflow: hidden; /* Hide overflow from health bar */
 }
 
-.health {
+/*.health {*/
+/*    position: absolute;*/
+/*    bottom: 1px;*/
+/*    left: 0;*/
+/*    height: 3px;*/
+/*    background-color: red;*/
+/*    z-index: 1;*/
+/*}*/
+
+.health-hero {
     position: absolute;
-    bottom: 1px;
+    /*bottom: 1px;*/
+    top: 1px;
+    left: 0;
+    height: 3px;
+    background-color: green;
+    z-index: 1;
+}
+
+.health-enemy {
+    position: absolute;
+    /*bottom: 1px;*/
+    top: 1px;
     left: 0;
     height: 3px;
     background-color: red;
     z-index: 1;
 }
+
 
 .wall {
     background: url("img/tile-W.png") center/contain no-repeat !important;
