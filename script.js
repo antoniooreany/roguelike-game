@@ -397,6 +397,38 @@ $(document).ready(function() {
         }
     };
 
+
+    Game.prototype.ensureReachable = function() {
+        var visited = [];
+        for (var y = 0; y < this.H; y++) {
+            visited[y] = [];
+            for (var x = 0; x < this.W; x++) visited[y][x] = false;
+        }
+        var queue = [[this.hero.x, this.hero.y]];
+        visited[this.hero.y][this.hero.x] = true;
+        while (queue.length) {
+            var pos = queue.shift();
+            var dirs = [[1,0],[-1,0],[0,1],[0,-1]];
+            for (var d = 0; d < dirs.length; d++) {
+                var nx = pos[0] + dirs[d][0], ny = pos[1] + dirs[d][1];
+                if (nx >= 0 && ny >= 0 && nx < this.W && ny < this.H &&
+                    !visited[ny][nx] && (this.map[ny][nx] === "floor" || this.map[ny][nx] === "potion" || this.map[ny][nx] === "sword")) {
+                    visited[ny][nx] = true;
+                    queue.push([nx, ny]);
+                }
+            }
+        }
+        // Convert unreachable floors to walls
+        for (var y = 0; y < this.H; y++) {
+            for (var x = 0; x < this.W; x++) {
+                if ((this.map[y][x] === "floor" || this.map[y][x] === "potion" || this.map[y][x] === "sword") && !visited[y][x]) {
+                    this.map[y][x] = "wall";
+                }
+            }
+        }
+    };
+
+
     Game.prototype.placeEnemies = function(n) {
         for (var i = 0; i < n; i++) {
             while (true) {
@@ -522,6 +554,7 @@ $(document).ready(function() {
     game.placeItems("sword", 2);
     game.placeItems("potion", 10);
     game.placeHero();
+    game.ensureReachable();
     game.placeEnemies(10);
     game.draw();
 });
