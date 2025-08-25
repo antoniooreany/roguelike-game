@@ -455,7 +455,7 @@ $(document).ready(function() {
                 this.hero.hp -= 5;
                 if (this.hero.hp <= 0) {
                     this.draw();
-                    alert("Вы погибли!");
+                    alert("You are dead!");
                     location.reload();
                     return;
                 }

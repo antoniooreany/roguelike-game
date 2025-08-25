@@ -9,8 +9,8 @@ body {
 }
 
 .field {
-    width: calc(40 * 16px); /* 40 клеток */
-    height: calc(24 * 16px); /* 24 клетки */
+    width: calc(40 * 16px); /* 40 cells */
+    height: calc(24 * 16px); /* 24 cells */
     display: grid;
     grid-template-columns: repeat(40, 16px);
     grid-template-rows: repeat(24, 16px);
