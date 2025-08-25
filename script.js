@@ -2,27 +2,30 @@
 $(document).ready(function () {
 
     const CONFIG = {
-        MAP_WIDTH: 40,
-        MAP_HEIGHT: 24,
-        TILE_SIZE: 20, // px
+        MAP_WIDTH: 40, // cells
+        MAP_HEIGHT: 24, // cells
+        TILE_SIZE: 50, // px
 
-        MIN_ROOMS: 5,
-        MAX_ROOMS: 10,
-        MIN_ROOM_SIZE: 3,
-        MAX_ROOM_SIZE: 8,
+        MIN_ROOMS: 5, // amount
+        MAX_ROOMS: 10, // amount
+        MIN_ROOM_SIZE: 3, // cells
+        MAX_ROOM_SIZE: 8, // cells
 
-        MIN_CORRIDORS: 3,
-        MAX_CORRIDORS: 5,
+        MIN_CORRIDORS: 3, // amount
+        MAX_CORRIDORS: 5, // amount
 
-        NUM_SWORDS: 2,
-        NUM_POTIONS: 10,
-        NUM_ENEMIES: 10,
+        NUM_SWORDS: 2, // amount
+        NUM_POTIONS: 10, // amount
+        // NUM_ENEMIES: 10, // amount
+        NUM_ENEMIES: 2, // amount
 
-        HERO_HP: 100,
-        HERO_ATK: 1,
-        POTION_HEAL: 30,
-        ENEMY_HP: 20,
-        ENEMY_ATK: 5,
+        HERO_MAX_HP: 100, // points
+        HERO_SWORDS: 1, // points
+
+        POTION_HEAL: 30, // points
+        POTION_MAX_HP: 100, // points
+        ENEMY_MAX_XP: 20, // points
+        ENEMY_ATK: 5, // points
     };
 
     /**
@@ -30,16 +33,19 @@ $(document).ready(function () {
      * @constructor
      * @param {number} x - The initial x-coordinate.
      * @param {number} y - The initial y-coordinate.
-     * @param {number} [hp=100] - The current health points.
-     * @param {number} [maxHp=100] - The maximum health points.
-     * @param {number} [atk=1] - The attack power.
+     * @param {number} hp - The current health points.
+     * @param {number} maxHp - The maximum health points.
+     * @param {number} [swordNumber=1] - The attack power.
      */
-    function Hero(x, y, hp, maxHp, atk) {
+    function Hero(x, y, hp, maxHp, swordNumber) {
         this.x = x;
         this.y = y;
-        this.hp = typeof hp === "undefined" ? 100 : hp;
-        this.maxHp = typeof maxHp === "undefined" ? 100 : maxHp;
-        this.atk = typeof atk === "undefined" ? 1 : atk;
+        this.hp = typeof hp === "undefined" ? CONFIG.HERO_MAX_HP : hp;
+        // this.hp = hp;
+        this.maxHp = typeof maxHp === "undefined" ? CONFIG.HERO_MAX_HP : maxHp;
+        // this.maxHp = maxHp;
+        this.swordNumber = typeof swordNumber === "undefined" ? CONFIG.HERO_SWORDS : swordNumber;
+        // this.swordNumber = swordNumber;
     }
 
     /**
@@ -50,17 +56,17 @@ $(document).ready(function () {
      */
     Hero.prototype.move = function (dx, dy, game) {
         var nx = this.x + dx, ny = this.y + dy;
-        if (nx < 0 || ny < 0 || nx >= game.W || ny >= game.H) return;
+        if (nx < 0 || ny < 0 || nx >= game.fieldWidht || ny >= game.fieldHight) return;
         var cell = game.map[ny][nx];
         if (cell === "wall") return;
         for (var i = 0; i < game.enemies.length; i++) {
             if (game.enemies[i].x === nx && game.enemies[i].y === ny) return;
         }
         if (cell === "potion") {
-            this.hp = Math.min(this.hp + 30, this.maxHp);
+            this.hp = Math.min(this.hp + CONFIG.POTION_HEAL, this.maxHp);
             game.map[ny][nx] = "floor";
         } else if (cell === "sword") {
-            this.atk++;
+            this.swordNumber++;
             game.map[ny][nx] = "floor";
         }
         this.x = nx;
@@ -81,7 +87,7 @@ $(document).ready(function () {
             for (var i = game.enemies.length - 1; i >= 0; i--) {
                 if (game.enemies[i].x === nx && game.enemies[i].y === ny) {
                     attacked = true;
-                    game.enemies[i].hp -= this.atk;
+                    game.enemies[i].hp -= this.swordNumber;
                     if (game.enemies[i].hp <= 0) {
                         game.enemies.splice(i, 1);
                     }
@@ -91,9 +97,8 @@ $(document).ready(function () {
         if (attacked) {
             // Check for win condition after attacking
             if (game.enemies.length === 0) {
-                game.draw(); // Redraw to show the last enemy is gone
-                alert("You win!");
-                location.reload(); // Restart the game
+                game.draw();
+                showEndScreen("You win!");
                 return; // Stop the turn
             }
             game.enemyTurn();
@@ -111,23 +116,23 @@ $(document).ready(function () {
     function Enemy(x, y, hp, maxHp) {
         this.x = x;
         this.y = y;
-        this.hp = typeof hp === "undefined" ? 20 : hp;
-        this.maxHp = typeof maxHp === "undefined" ? 20 : maxHp;
+        this.hp = typeof hp === "undefined" ? CONFIG.ENEMY_MAX_XP : hp;
+        this.maxHp = typeof maxHp === "undefined" ? CONFIG.ENEMY_MAX_XP : maxHp;
     }
 
     /**
      * Manages the game state, map, and entities.
      * @constructor
-     * @param {number} [W=40] - The width of the game map.
-     * @param {number} [H=24] - The height of the game map.
+     * @param {number} [fieldWidht=40] - The width of the game map.
+     * @param {number} [fieldHight=24] - The height of the game map.
      */
-    function Game(W, H) {
-        // this.field = document.querySelector(".field");
-        // this.field = $(".field");
+    function Game(fieldWidht, fieldHight) {
         // Map width
-        this.W = typeof W === "undefined" ? 40 : W;
+        this.fieldWidht = typeof fieldWidht === "undefined" ? CONFIG.MAP_WIDTH : fieldWidht;
+        // this.fieldWidht = fieldWidht;
         // Map height
-        this.H = typeof H === "undefined" ? 24 : H;
+        this.fieldHight = typeof fieldHight === "undefined" ? CONFIG.MAP_HEIGHT : fieldHight;
+        // this.fieldHight = fieldHight;
         // Game map as a 2D array
         this.map = [];
         // Hero instance
@@ -140,9 +145,9 @@ $(document).ready(function () {
      * Initializes the map by filling it with "wall" tiles.
      */
     Game.prototype.createMap = function () {
-        for (var y = 0; y < this.H; y++) {
+        for (var y = 0; y < this.fieldHight; y++) {
             this.map[y] = [];
-            for (var x = 0; x < this.W; x++) {
+            for (var x = 0; x < this.fieldWidht; x++) {
                 this.map[y][x] = "wall";
             }
         }
@@ -158,7 +163,7 @@ $(document).ready(function () {
     Game.prototype.carveRoom = function (xStart, yStart, w, h) {
         for (var y = yStart; y < yStart + h; y++) {
             for (var x = xStart; x < xStart + w; x++) {
-                if (x > 0 && y > 0 && x < this.W - 1 && y < this.H - 1) {
+                if (x > 0 && y > 0 && x < this.fieldWidht - 1 && y < this.fieldHight - 1) {
                     // Ensure the room is within the map boundaries (with a 1-tile border)
                     this.map[y][x] = "floor";
                 }
@@ -184,8 +189,8 @@ $(document).ready(function () {
         for (var i = 0; i < rooms; i++) {
             var w = this.getRandomInRange(3, 8);
             var h = this.getRandomInRange(3, 8);
-            var x = this.getRandomInRange(1, this.W - w - 2);
-            var y = this.getRandomInRange(1, this.H - h - 2);
+            var x = this.getRandomInRange(1, this.fieldWidht - w - 2);
+            var y = this.getRandomInRange(1, this.fieldHight - h - 2);
             this.carveRoom(x, y, w, h);
         }
     };
@@ -198,14 +203,14 @@ $(document).ready(function () {
         // Generate random horizontal corridors
         var hCorridors = this.getRandomInRange(3, 5);
         for (var i = 0; i < hCorridors; i++) {
-            var y = this.getRandomInRange(1, this.H - 2);
-            for (var x = 0; x < this.W; x++) this.map[y][x] = "floor";
+            var y = this.getRandomInRange(1, this.fieldHight - 2);
+            for (var x = 0; x < this.fieldWidht; x++) this.map[y][x] = "floor";
         }
         // Generate random vertical corridors
         var vCorridors = this.getRandomInRange(3, 5);
         for (var i = 0; i < vCorridors; i++) {
-            var x = this.getRandomInRange(1, this.W - 2);
-            for (var y = 0; y < this.H; y++) this.map[y][x] = "floor";
+            var x = this.getRandomInRange(1, this.fieldWidht - 2);
+            for (var y = 0; y < this.fieldHight; y++) this.map[y][x] = "floor";
         }
     };
 
@@ -217,8 +222,8 @@ $(document).ready(function () {
     Game.prototype.placeItems = function (type, count) {
 
         while (count > 0) {
-            var x = this.getRandomInRange(0, this.W - 1);
-            var y = this.getRandomInRange(0, this.H - 1);
+            var x = this.getRandomInRange(0, this.fieldWidht - 1);
+            var y = this.getRandomInRange(0, this.fieldHight - 1);
             if (this.map[y][x] === "floor") {
                 this.map[y][x] = type;
                 count--;
@@ -242,10 +247,10 @@ $(document).ready(function () {
      */
     Game.prototype.placeHero = function () {
         while (true) {
-            var x = this.getRandomInRange(0, this.W - 1);
-            var y = this.getRandomInRange(0, this.H - 1);
+            var x = this.getRandomInRange(0, this.fieldWidht - 1);
+            var y = this.getRandomInRange(0, this.fieldHight - 1);
             if (this.map[y][x] === "floor") {
-                this.hero = new Hero(x, y);
+                this.hero = new Hero(x, y, CONFIG.HERO_MAX_HP, CONFIG.HERO_MAX_HP, CONFIG.HERO_SWORDS);
                 break;
             }
         }
@@ -258,9 +263,9 @@ $(document).ready(function () {
      */
     Game.prototype.ensureReachable = function () {
         var visited = [];
-        for (var y = 0; y < this.H; y++) {
+        for (var y = 0; y < this.fieldHight; y++) {
             visited[y] = [];
-            for (var x = 0; x < this.W; x++) visited[y][x] = false;
+            for (var x = 0; x < this.fieldWidht; x++) visited[y][x] = false;
         }
         // Start BFS from hero's position
         var queue = [[this.hero.x, this.hero.y]];
@@ -272,7 +277,7 @@ $(document).ready(function () {
             for (var d = 0; d < dirs.length; d++) {
                 var nx = pos[0] + dirs[d][0], ny = pos[1] + dirs[d][1];
                 // Check boundaries and if the tile has been visited
-                if (nx >= 0 && ny >= 0 && nx < this.W && ny < this.H &&
+                if (nx >= 0 && ny >= 0 && nx < this.fieldWidht && ny < this.fieldHight &&
                     !visited[ny][nx] && (this.map[ny][nx] === "floor" || this.map[ny][nx] === "potion" || this.map[ny][nx] === "sword")) {
                     visited[ny][nx] = true;
                     queue.push([nx, ny]);
@@ -280,8 +285,8 @@ $(document).ready(function () {
             }
         }
         // Convert unreachable floor/item tiles to walls
-        for (var y = 0; y < this.H; y++) {
-            for (var x = 0; x < this.W; x++) {
+        for (var y = 0; y < this.fieldHight; y++) {
+            for (var x = 0; x < this.fieldWidht; x++) {
                 if ((this.map[y][x] === "floor" || this.map[y][x] === "potion" || this.map[y][x] === "sword") && !visited[y][x]) {
                     this.map[y][x] = "wall";
                 }
@@ -296,8 +301,8 @@ $(document).ready(function () {
     Game.prototype.placeEnemies = function (n) {
         for (var i = 0; i < n; i++) {
             while (true) {
-                var x = this.getRandomInRange(0, this.W - 1);
-                var y = this.getRandomInRange(0, this.H - 1);
+                var x = this.getRandomInRange(0, this.fieldWidht - 1);
+                var y = this.getRandomInRange(0, this.fieldHight - 1);
                 if (this.map[y] && this.map[y][x] === "floor") {
                     this.enemies.push(new Enemy(x, y));
                     break;
@@ -363,12 +368,12 @@ $(document).ready(function () {
         field.innerHTML = ""; // Clear the field
 
         // Iterate over the map to create and style each tile
-        for (let y = 0; y < this.H; y++) {
-            for (let x = 0; x < this.W; x++) {
+        for (let y = 0; y < this.fieldHight; y++) {
+            for (let x = 0; x < this.fieldWidht; x++) {
                 const tile = document.createElement("div");
                 tile.classList.add("tile");
-                tile.style.left = `${x * 50}px`;
-                tile.style.top = `${y * 50}px`;
+                tile.style.left = `${x * CONFIG.TILE_SIZE}px`;
+                tile.style.top = `${y * CONFIG.TILE_SIZE}px`;
 
                 let cls = this.map[y][x];
                 let healthBar = null;
@@ -408,7 +413,7 @@ $(document).ready(function () {
 
         // Update UI elements for health and attack stats
         document.querySelector("#health").textContent = `❤️ ${this.hero.hp}`;
-        document.querySelector("#attack").textContent = `⚔️ ${this.hero.atk}`;
+        document.querySelector("#attack").textContent = `⚔️ ${this.hero.swordNumber}`;
     };
 
     /**
@@ -429,14 +434,11 @@ $(document).ready(function () {
                 }
             }
             if (isAdjacentToHero) {
-                this.hero.hp -= 5;
+                this.hero.hp -= CONFIG.ENEMY_ATK;
                 // Check for game over
                 if (this.hero.hp <= 0) {
-                    // Update the screen to show 0 HP
                     this.draw();
-                    alert("Game over!");
-                    // Reload the page to restart
-                    location.reload();
+                    showEndScreen("Game over!");
                     // Stop processing further enemy turns
                     return;
                 }
@@ -446,16 +448,16 @@ $(document).ready(function () {
                 var nx = e.x + r[0];
                 var ny = e.y + r[1];
                 // Check if the new position is valid (within bounds and not a wall)
-                if (nx >= 0 && ny >= 0 && nx < this.W && ny < this.H && this.map[ny][nx] !== "wall") {
+                if (nx >= 0 && ny >= 0 && nx < this.fieldWidht && ny < this.fieldHight && this.map[ny][nx] !== "wall") {
                     var blocked = false;
-                    // Check if the new position is blocked by another enemy
+                    // Check if another enemy blocks the new position
                     for (var j = 0; j < this.enemies.length; j++) {
                         if (this.enemies[j].x === nx && this.enemies[j].y === ny) {
                             blocked = true;
                             break;
                         }
                     }
-                    // Check if the new position is blocked by the hero
+                    // Check if the hero blocks the new position
                     if (this.hero.x === nx && this.hero.y === ny) {
                         blocked = true;
                     }
@@ -490,25 +492,47 @@ $(document).ready(function () {
         game.draw();
     });
 
-    // --- Game Initialization ---
-    // Creates a new game instance and sets up the level.
-    var game = new Game();
-    // Fill the map with walls
-    game.createMap();
-    // Carve out rooms
-    game.makeRooms();
-    // Carve out corridors
-    game.makeCorridors();
-    // Place swords the map
-    game.placeItems("sword", 2);
-    // Place potions on the map
-    game.placeItems("potion", 10);
-    // Place the hero on the map
-    game.placeHero();
-    // Ensure all floor/item tiles are reachable from the hero's starting position
-    game.ensureReachable();
-    // Place enemies on the map
-    game.placeEnemies(10);
-    // Draw the initial game state
-    game.draw();
+    /**
+     * Shows the final screen (win/lose) and stops the game.
+     * @param {string} message - The message to display.
+     */
+    function showEndScreen(message) {
+        $(document).off('keydown'); // Disable player controls
+        $('#game-over-message').text(message);
+        $('#game-over-screen').fadeIn(400);
+    }
+
+    $('#restart-button').click(function () {
+        location.reload();
+    });
+
+    function setupGame(Game) {
+        // --- Game Initialization ---
+        // Creates a new game instance and sets up the level.
+        var game = new Game(CONFIG.MAP_WIDTH, CONFIG.MAP_HEIGHT);
+        // Fill the map with walls
+        game.createMap();
+        // Carve out rooms
+        game.makeRooms();
+        // Carve out corridors
+        game.makeCorridors();
+        // Place swords on the map
+        game.placeItems("sword", CONFIG.NUM_SWORDS);
+        // Place potions on the map
+        game.placeItems("potion", CONFIG.NUM_POTIONS);
+        // Place the hero on the map
+        game.placeHero();
+        // Ensure all floor/item tiles are reachable from the hero's starting position
+        game.ensureReachable();
+        // Place enemies on the map
+        game.placeEnemies(CONFIG.NUM_ENEMIES);
+        // Draw the initial game state
+        game.draw();
+        // Start the game loop
+        // game.start();
+        return game;
+    }
+
+
+    var game = setupGame(Game);  // TODO move it to the index.html
 });
