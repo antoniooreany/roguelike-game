@@ -25,34 +25,6 @@ body {
     overflow: hidden; /* Hide overflow from health bar */
 }
 
-/*.health {*/
-/*    position: absolute;*/
-/*    bottom: 1px;*/
-/*    left: 0;*/
-/*    height: 3px;*/
-/*    background-color: red;*/
-/*    z-index: 1;*/
-/*}*/
-
-.health-hero {
-    /*position: absolute;*/
-    /*top: 1px;*/
-    /*left: 0;*/
-    /*height: 3px;*/
-    /*z-index: 1;*/
-    background-color: green;
-}
-
-.health-enemy {
-    /*position: absolute;*/
-    /*top: 1px;*/
-    /*left: 0;*/
-    /*height: 3px;*/
-    /*z-index: 1;*/
-    background-color: red;
-}
-
-
 .health-hero, .health-enemy {
     position: absolute;
     top: 1px;
@@ -60,6 +32,14 @@ body {
     height: 3px;
     z-index: 1;
     transition: width 0.5s ease-in-out;
+}
+
+.health-hero {
+    background-color: green;
+}
+
+.health-enemy {
+    background-color: red;
 }
 
 .wall {
