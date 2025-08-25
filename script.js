@@ -1,6 +1,30 @@
 // Wait for the DOM to be fully loaded
 $(document).ready(function () {
 
+    const CONFIG = {
+        MAP_WIDTH: 40,
+        MAP_HEIGHT: 24,
+        TILE_SIZE: 20, // px
+
+        MIN_ROOMS: 5,
+        MAX_ROOMS: 10,
+        MIN_ROOM_SIZE: 3,
+        MAX_ROOM_SIZE: 8,
+
+        MIN_CORRIDORS: 3,
+        MAX_CORRIDORS: 5,
+
+        NUM_SWORDS: 2,
+        NUM_POTIONS: 10,
+        NUM_ENEMIES: 10,
+
+        HERO_HP: 100,
+        HERO_ATK: 1,
+        POTION_HEAL: 30,
+        ENEMY_HP: 20,
+        ENEMY_ATK: 5,
+    };
+
     /**
      * Represents the player's character.
      * @constructor
@@ -485,7 +509,6 @@ $(document).ready(function () {
     game.ensureReachable();
     // Place enemies on the map
     game.placeEnemies(10);
-    // game.placeEnemies(1);
     // Draw the initial game state
     game.draw();
 });
