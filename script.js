@@ -410,7 +410,23 @@ $(document).ready(function() {
         }
     };
 
+    // Game.prototype.updateTiles = function() {
+    //     var html = "";
+    //     for (var y = 0; y < this.H; y++) {
+    //         for (var x = 0; x < this.W; x++) {
+    //             var cls = this.map[y][x];
+    //             if (this.hero.x === x && this.hero.y === y) cls = "hero";
+    //             for (var i = 0; i < this.enemies.length; i++) {
+    //                 if (this.enemies[i].x === x && this.enemies[i].y === y) cls = "enemy";
+    //             }
+    //             html += '<div class="tile ' + cls + '"></div>';
+    //         }
+    //     }
+    //     this.field.innerHTML = html; // Single DOM update
+    // };
+
     Game.prototype.draw = function() {
+        // this.updateTiles();
         var html = "";
         for (var y = 0; y < this.H; y++) {
             for (var x = 0; x < this.W; x++) {
